@@ -82,6 +82,6 @@ class DpMakeChangeWithSolver:
 DpMakeChangeSolver = DpMakeChangeWithSolver()
 
 if __name__ == "__main__":
-    DpMakeChangeSolver.solve([1, 5, 10, 25], 63)
+    DpMakeChangeSolver.solve([1, 5, 8, 10, 25], 33)
     print(DpMakeChangeSolver.getResult())
     DpMakeChangeSolver.printCoins()
