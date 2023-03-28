@@ -1,6 +1,6 @@
-import utility
+from tools import *
 
-utility.DEBUG = True
+DEBUG.ON = False
 
 def bubbleSort(alist:list) -> None:
     """
@@ -87,7 +87,7 @@ def mergeSort(alist:list) -> None:
     :param alist: list of comparable objects
     :return:
     """
-    utility.DEBUG_PRINT("Spliting ", alist)
+    DEBUG.PRINT("Spliting ", alist)
     if len(alist) > 1:
         mid = len(alist) // 2
         lefthalf = alist[:mid]
@@ -117,8 +117,9 @@ def mergeSort(alist:list) -> None:
             alist[k] = righthalf[j]
             j = j + 1
             k = k + 1
-    utility.DEBUG_PRINT("Merging  ", alist)
+    DEBUG.PRINT("Merging  ", alist)
 
+# @TIMER()
 def mergeSort2(alist:int, start:int, end:int) -> None:
     """
     :param alist: list of comparable objects
@@ -126,7 +127,7 @@ def mergeSort2(alist:int, start:int, end:int) -> None:
     :param end: end index of interval being sorted but not included
     :return:
     """
-    utility.DEBUG_PRINT("Spliting ", alist[start:end])
+    DEBUG.PRINT("Spliting ", alist[start:end])
     if end - start > 1:
         mid = (start + end) // 2
 
@@ -157,7 +158,7 @@ def mergeSort2(alist:int, start:int, end:int) -> None:
             alist[k] = i
             k += 1
 
-    utility.DEBUG_PRINT("Merging  ", alist[start:end])
+    DEBUG.PRINT("Merging  ", alist[start:end])
 
 class QuickSort:
     @staticmethod
@@ -195,6 +196,4 @@ class QuickSort:
 
 if __name__ == "__main__":
     b = [54, 26, 93, 17, 77, 31, 44, 55, 20]
-    print(b)
-    QuickSort.quickSort(b)
-    print(b)
+    mergeSort2(b, 0, len(b))
