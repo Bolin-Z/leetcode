@@ -1,5 +1,5 @@
 import functools
-from ch3_stack import Stack
+from mylib.stack import Stack
 from typing import Callable
 from turtle import *
 

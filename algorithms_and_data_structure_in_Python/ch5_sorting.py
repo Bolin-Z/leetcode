@@ -1,4 +1,4 @@
-from tools import *
+from mylib.tools import DEBUG, TIMER
 
 DEBUG.ON = False
 

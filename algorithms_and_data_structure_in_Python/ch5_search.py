@@ -151,6 +151,22 @@ class HashTable:
     
     def __setitem__(self, key, data):
         self.put(key, data)
+    
+    def __delitem__(self, key):
+        startslot = self.hashfunction(key, len(self.slots))
+        stop = False
+        found = False
+        position = startslot
+        while self.slots[position] != None and not found and not stop:
+            if self.slots[position] == key:
+                found = True
+            else:
+                position = self.rehash(position, len(self.slots))
+                if position == startslot:
+                    stop = True
+        if found:
+            self.slots[position] = None
+            self.data[position] = None
 
     def __contains__(self, item) -> bool:
         return self.get(item) != None
@@ -177,3 +193,8 @@ if __name__ == "__main__":
     print(H[20])
     print(H.data)
     print(H[99])
+    print(H.slots)
+    print(H.data)
+    del H[77]
+    print(H.slots)
+    print(H.data)
