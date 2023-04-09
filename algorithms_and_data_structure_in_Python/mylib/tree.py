@@ -2,7 +2,7 @@
 """
 import operator
 
-__all__ = ["BinaryTree", "BinaryHeap", "heapSort", "BinarySearchTree"]
+__all__ = ["BinaryTree", "BinaryHeap", "heapSort", "BinarySearchTree", "AVLTree"]
 
 class BinaryTree:
     """
@@ -253,7 +253,6 @@ class TreeNode:
                 else:
                     self.parent.rightChild = self.rightChild
                 self.rightChild.parent = self.parent
-
 
 class BinarySearchTree:
     def __init__(self) -> None:
