@@ -1,22 +1,25 @@
 """stack.py stack implement with list
 
 """
+from typing import Generic, TypeVar
+
 __all__ = ['Stack']
 
-class Stack:
+VT = TypeVar('VT')
+class Stack(Generic[VT]):
     def __init__(self) -> None:
-        self.__items = []
+        self.__items : list[VT] = []
 
-    def push(self, item:object) -> None:
+    def push(self, item:VT) -> None:
         self.__items.append(item)
 
-    def pop(self) -> object:
+    def pop(self) -> VT:
         try:
             return self.__items.pop()
         except IndexError:
             print("ERROR: CAN NOT POP AN EMPTY STACK")
 
-    def peek(self) -> object:
+    def peek(self) -> VT:
         try:
             return self.__items[len(self.__items) - 1]
         except IndexError:

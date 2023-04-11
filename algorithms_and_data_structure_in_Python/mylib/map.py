@@ -1,8 +1,14 @@
 """map.py mapping data structure
 """
 from abc import ABC, abstractmethod
-
-__all__ = ["HashTable", "Map"]
+from typing import Generic, TypeVar
+from random import randrange
+from mylib.stack import Stack
+"""
+Map can be implement with hash table, binary search tree,
+    avl tree, skip list and so on.
+"""
+__all__ = ["HashTable", "Map", "SkipList"]
 
 class Map(ABC):
     """
@@ -144,6 +150,136 @@ class HashTable(Map):
     
     def len(self) -> int:
         return self.__loaded
+
+class HeaderNode:
+    def __init__(self) -> None:
+        self.next:DataNode = None
+        self.down:HeaderNode = None
+    
+    def getNext(self):
+        return self.next
+    
+    def getDown(self):
+        return self.down
+    
+    def setNext(self, newnext:"DataNode"):
+        self.next = newnext
+    
+    def setDown(self, newdown:"HeaderNode"):
+        self.down = newdown
+
+KT = TypeVar('KT')
+VT = TypeVar('VT')
+class DataNode(Generic[KT, VT]):
+    def __init__(self, key:KT, value:VT) -> None:
+        self.key = key
+        self.data = value
+        self.next:DataNode = None
+        self.down:DataNode = None
+    
+    def getKey(self):
+        return self.key
+    
+    def getData(self):
+        return self.data
+    
+    def getDown(self):
+        return self.down
+
+    def getNext(self):
+        return self.next
+    
+    def setData(self, newdata:VT):
+        self.data = newdata
+    
+    def setNext(self, newnext:"DataNode"):
+        self.next = newnext
+    
+    def setDown(self, newdown:"DataNode"):
+        self.down = newdown
+
+class SkipList(Generic[KT, VT]):
+    def __init__(self) -> None:
+        self.head : HeaderNode = None
+    
+    def _flip(self) -> bool:
+        return randrange(2) == 1
+    
+    def search(self, key:KT) -> VT | None:
+        current = self.head
+        found = False
+        stop = False
+        while not found and not stop:
+            if current == None:
+                stop = True
+            else:
+                if current.getNext() == None:
+                    current = current.getDown()
+                else:
+                    if current.getNext().getKey() == key:
+                        found = True
+                    else:
+                        if key < current.getNext().getKey():
+                            current = current.getDown()
+                        else:
+                            current = current.getNext()
+        if found:
+            return current.getNext().getData()
+        else:
+            return None
+    
+    def insert(self, key : KT, data : VT) -> None:
+        if self.head == None:
+            self.head = HeaderNode()
+            temp = DataNode(key, data)
+            self.head.setNext(temp)
+            top = temp
+            while self._flip():
+                newhead = HeaderNode()
+                temp = DataNode(key, data)
+                temp.setDown(top)
+                newhead.setNext(temp)
+                newhead.setDown(self.head)
+                self.head = newhead
+                top = temp
+        else:
+            towerStack = Stack[DataNode | HeaderNode]()
+            current = self.head
+            stop = False
+            while not stop:
+                if current == None:
+                    stop = True
+                else:
+                    if current.getNext() == None:
+                        towerStack.push(current)
+                        current = current.getDown()
+                    else:
+                        if current.getNext().getKey() > key:
+                            towerStack.push(current)
+                            current = current.getDown()
+                        else:
+                            current = current.getNext()
+            lowestLevel = towerStack.pop()
+            temp = DataNode(key, data)
+            temp.setNext(lowestLevel.getNext())
+            lowestLevel.setNext(temp)
+            top = temp
+            while self._flip():
+                if towerStack.isEmpty():
+                    newhead = HeaderNode()
+                    temp = DataNode(key, data)
+                    temp.setDown(top)
+                    newhead.setNext(temp)
+                    newhead.setDown(self.head)
+                    self.head = newhead
+                    top = temp
+                else:
+                    nextLevel = towerStack.pop()
+                    temp = DataNode(key, data)
+                    temp.setDown(top)
+                    temp.setNext(nextLevel.getNext())
+                    nextLevel.setNext(temp)
+                    top = temp
 
 if __name__ == "__main__":
     pass
