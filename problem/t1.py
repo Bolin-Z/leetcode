@@ -9,4 +9,4 @@ class Solution:
             if rest in table:
                 return [table[rest], i]
             else:
-                table[rest] = i
+                table[nums[i]] = i
