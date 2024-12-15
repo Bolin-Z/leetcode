@@ -12,7 +12,16 @@ class Solution:
         """test code
         """
         test_cases = []
-        pass
+        for i, case in enumerate(test_cases):
+            print(f"测试用例 {i + 1}")
+            print(f"\t输入:")
+            for item in case:
+                print(f"\t\t{item}")
+            print(f"\t输出:")
+            # 调用求解函数
+            answer = []
+            for ans in answer:
+                print(f"\t\t{ans}")
 
 # 官方题解
 
