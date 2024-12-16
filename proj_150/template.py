@@ -21,8 +21,11 @@ class Solution:
             print(f"\t输出:")
             # 调用求解函数
             answer = []
-            for ans in answer:
-                print(f"\t\t{ans}")
+            if type(answer) == List:
+                for ans in answer:
+                    print(f"\t\t{ans}")
+            else:
+                print(f"\t\t{answer}")
 
 # 官方题解
 
