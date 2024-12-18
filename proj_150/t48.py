@@ -56,7 +56,7 @@ class Solution:
             while i < n - 1 and nums[i] + 1 == nums[i + 1]:
                 i += 1
             s = str(nums[start])
-            if start < i:
+            if start < i: # 当 start == i 时不进入
                 s += "->" + str(nums[i])
             answer.append(s)
             i += 1

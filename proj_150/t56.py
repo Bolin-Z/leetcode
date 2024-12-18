@@ -1,14 +1,16 @@
-# 题目：
+# 题目：224.基本计算器
 # 标签：
-# 难度：
-# 日期：
+# 难度：困难
+# 日期：12.18
 
 from typing import *
 
 # 思路:
-#
+# 中缀转后缀 再逆波兰？
 
 class Solution:
+    def calculate(self, s: str) -> int:
+        pass
     def test(self):
         """test code
         """
