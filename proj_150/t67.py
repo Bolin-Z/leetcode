@@ -9,33 +9,57 @@ from typing import *
 #
 
 class LinkNode:
-    def __init__(self, val:int=0, next:'Optional[LinkNode]'=None, prev:'Optional[LinkNode]'=None):
+    __slots__ = "key", "val", "prev", "next"
+    def __init__(self, key:int=0, val:int=0, prev:'Optional[LinkNode]'=None, next:'Optional[LinkNode]'=None):
+        self.key = key
         self.val = val
-        self.next = next
         self.prev = prev
+        self.next = next
 
 class LRUCache:
 
     def __init__(self, capacity: int):
         self.capacity = capacity
-        self.cur_num = 0
-        self.hash_table = {}
-        self.old = self.new = None
+        self.key_to_node = dict()
+        self.dummy = LinkNode()
+        self.dummy.next = self.dummy
+        self.dummy.prev = self.dummy
 
     def get(self, key: int) -> int:
-        if key in self.hash_table:
-            ptr:LinkNode = self.hash_table[key]
-            prev = ptr.prev
-            next = ptr.next
-            prev.next = next
-            next.prev = prev
-            self.new.next = ptr
-            ptr.prev = self.new
-            return ptr.val
-        return -1
+        ptr = self.__get_node(key)
+        return ptr.val if ptr else -1
 
     def put(self, key: int, value: int) -> None:
-        pass
+        ptr = self.__get_node(key)
+        if ptr is None:
+            ptr = LinkNode(key=key, val=value)
+            self.__insert_front(ptr)
+            self.key_to_node[key] = ptr
+
+            if len(self.key_to_node) > self.capacity:
+                oldest = self.dummy.prev
+                self.__remove_node(oldest)
+                del self.key_to_node[oldest.key]
+        ptr.val = value
+    
+    def __get_node(self, key:int) -> Optional[LinkNode]:
+        ptr = None
+        if key in self.key_to_node:
+            ptr = self.key_to_node[key]
+            self.__remove_node(ptr)
+            self.__insert_front(ptr)
+        return ptr
+
+    def __remove_node(self, n:LinkNode) -> None:
+        prev, next = n.prev, n.next
+        prev.next = next
+        next.prev = prev
+
+    def __insert_front(self, n:LinkNode) -> None:
+        n.next = self.dummy.next
+        n.prev = self.dummy
+        self.dummy.next.prev = n
+        self.dummy.next = n
 
 class Solution:
     def test(self):
