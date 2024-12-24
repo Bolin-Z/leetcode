@@ -58,19 +58,65 @@ class Solution:
 # 官方题解
 # 并查集的思路
 
-class UnionFindSet:
-    def __init__(self, n:int) -> None:
-        self.__parent = [-1 for _ in range(n)]
-        self.__weight = [0.0 for _ in range(n)]
-    def find(self, id:int) -> int:
-        if self.__parent[id] != -1:
-            origin = self.__parent[id]
-            self.__parent[id] = self.find(self.__parent[id])
-            self.__weight[id] *= self.__weight[origin]
-        return self.__parent[id]
+class DisjointSetWithWeight:
+    def __init__(self):
+        self._parents = []
+        self._weights = []
+        self._token_to_id:Dict[str, int] = {}
+        self._id_to_token:Dict[int, str] = {}
+
+    def add(self, token:str) -> None:
+        if token not in self._token_to_id:
+            new_id = len(self._token_to_id)
+            self._token_to_id[token] = new_id
+            self._id_to_token[new_id] = token
+            self._parents.append(new_id)
+            self._weights.append(1.0)
+    
+    def union(self, x:str, y:str, weight:float) -> None:
+        self.add(x)
+        self.add(y)
+        self._union(self._token_to_id[x], self._token_to_id[y], weight)
+    
+    def query_weight(self, x:str, y:str) -> float:
+        if x in self._token_to_id and y in self._token_to_id:
+            rootx_id = self._find(self._token_to_id[x])
+            rooty_id = self._find(self._token_to_id[y])
+            if rootx_id == rooty_id:
+                return self._weights[self._token_to_id[x]] / self._weights[self._token_to_id[y]]
+        return -1.0
+    
+    def _find(self, id:int) -> int:
+        if id != self._parents[id]: # 当前不为根节点
+            origin = self._parents[id]
+            self._parents[id] = self._find(self._parents[id]) # 递归寻根 + 路径压缩
+            self._weights[id] *= self._weights[origin] # self._weights[origin] 的值在递归寻根时已经保证为到根节点的权重
+        return self._parents[id]
+    
+    def _union(self, x:int, y:int, weight:float) -> None:
+        rootx = self._find(x)
+        rooty = self._find(y)
+        if rootx != rooty: # 合并
+            self._parents[rootx] = rooty # 将 rootx 连到 rooty
+            self._weights[rootx] = self._weights[y] * weight / self._weights[x] # 更新 rootx 到 rooty 的权重
+    
+    def _cal_weight(self, x:int, y:int) -> float:
+        rootx = self._find(x)
+        rooty = self._find(y)
+        return self._weights[x] / self._weights[y] if rootx == rooty else -1.0
+
 class Solution:
     def calcEquation(self, equations: List[List[str]], values: List[float], queries: List[List[str]]) -> List[float]:
-        pass
+        disjoint_set =  DisjointSetWithWeight()
+        for idx, eq in enumerate(equations):
+            var1, var2 = eq
+            weight = values[idx]
+            disjoint_set.union(var1, var2, weight)
+        ans = []
+        for eq in queries:
+            var1, var2 = eq
+            ans.append(disjoint_set.query_weight(var1, var2))
+        return ans
 
 # 测试
 if __name__ == "__main__":
