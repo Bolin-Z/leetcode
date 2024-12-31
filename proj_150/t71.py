@@ -1,5 +1,5 @@
-# 题目：226.翻转二叉树
-# 标签：
+# 题目：101.对称二叉树
+# 标签：树 DFS BFS 二叉树
 # 难度：简单
 # 日期：12.20
 
@@ -16,12 +16,31 @@ class TreeNode:
         self.right = right
 
 class Solution:
-    def invertTree(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
-        if root is not None:
-            root.left, root.right = root.right, root.left
-            self.invertTree(root.left)
-            self.invertTree(root.right)
-        return root
+    def isSymmetric(self, root: Optional[TreeNode]) -> bool:
+        return self.__iteration(root)
+
+    def __recursion(self, root: Optional[TreeNode]) -> bool:
+        if root is None: return True
+        return self.__check(root.left, root.right)
+
+    def __check(self, p:Optional[TreeNode], q:Optional[TreeNode]) -> bool:
+        if p is None and q is None: return True
+        if p is not None and q is not None:
+            return p.val == q.val and self.__check(p.left, q.right) and self.__check(p.right, q.left)
+        return False
+
+    def __iteration(self, root: Optional[TreeNode]) -> bool:
+        if root is None: return True
+        check_stack = [[root.left, root.right]]
+        while check_stack:
+            p, q = check_stack.pop()
+            if (p is None and q is not None) or (p is not None and q is None):
+                return False
+            elif p and q:
+                if p.val != q.val: return False
+                else:
+                    check_stack.extend([[p.left, q.right],  [p.right, q.left]])
+        return True
 
     def test(self):
         """test code

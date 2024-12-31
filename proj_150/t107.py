@@ -1,66 +1,68 @@
-# 题目：22.括号生成 *
-# 标签：字符串 DP 回溯
+# 题目：79.单词搜索
+# 标签：数组 字符串 回溯 矩阵
 # 难度：中等
 # 日期：12.26
 
 from typing import *
-from functools import lru_cache
 
 # 思路:
 #
 
 class Solution:
-    def generateParenthesis(self, n: int) -> List[str]:
-        ans = []
-        path = []
-        def dfs(left:int, right:int) -> None:
-            if left == n and right == n:
-                ans.append("".join(path))
-                return
-            if left < n:
-                path.append("(")
-                dfs(left + 1, right)
-                path.pop()
-            # if right < n and right + 1 <= left:
-            if right < left: # 化简
-                path.append(")")
-                dfs(left, right + 1)
-                path.pop()
+    def exist(self, board: List[List[str]], word: str) -> bool:
+        m, n = len(board), len(board[0])
+        def dfs(idx:int, x:int, y:int) -> bool:
+            if idx == len(word):
+                return True
+            if 0 <= x < m and 0 <= y < n and board[x][y] == word[idx]:
+                board[x][y] = "#"
+                for nx, ny in [(x + 1, y),(x - 1, y),(x, y + 1), (x, y - 1)]:
+                    if dfs(idx + 1, nx, ny):
+                        return True
+                board[x][y] = word[idx]
+            return False
+        for i in range(m):
+            for j in range(n):
+                if dfs(0, i, j):
+                    return True
+        return False
 
-        dfs(0, 0)
-        return ans
+
 
     def test(self):
-        self.generateParenthesis(2)
+        board = [
+            ["A","B","C","E"],
+            ["S","F","C","S"],
+            ["A","D","E","E"]
+        ]
+        word = "ABCCED"
+        self.exist(board, word)
 
 # 官方题解
-# 递归：生成的括号数目
+# 可以优化的点 word开头字母出现次数为 x，结尾字母出现次数为 y
+# 当 y < x 时可以将单词反转(匹配更少次数)
 class Solution:
-    @lru_cache(None)
-    def generateParenthesis(self, n: int) -> List[str]:
-        if n == 0:
-            return ['']
-        ans = []
-        for c in range(n):
-            for left in self.generateParenthesis(c):
-                for right in self.generateParenthesis(n - 1 - c):
-                    ans.append(f"({left}){right}") # (a)b a b 为合法括号序列
-        return ans
-# 由上面的可以有DP
-class Solution:
-    def generateParenthesis(self, n: int) -> List[str]:
-        # dp[i] 为生成 i 个括号的所有可能
-        dp = [[] for _ in range(n + 1)]
-        dp[0].append("")
-        for i in range(1, n + 1):
-            for j in range(i):
-                k = i - 1 - j
-                for left in dp[j]:
-                    for right in dp[k]:
-                        dp[i].append(f"({left}){right}")
-        return dp[n]
-    def test(self):
-        self.generateParenthesis(3)
+    def exist(self, board: List[List[str]], word: str) -> bool:
+        cnt = Counter(c for row in board for c in row)
+        if not cnt >= Counter(word): # 不满足字符出现数
+            return False
+        if cnt[word[-1]] < cnt[word[0]]: # 反转
+            word = word[::-1]
+        m, n = len(board), len(board[0])
+        
+        def dfs(idx:int, x:int, y:int) -> bool:
+            if board[x][y] != word[idx]:
+                return False
+            if idx == len(word) - 1: # 过了第一个 if 说明字符匹配
+                return True
+            board[x][y] = "#" # 标记走过
+            for nx, ny in (x, y - 1), (x, y + 1), (x - 1, y), (x + 1, y):
+                if 0 <= nx < m and 0 <= ny < n and dfs(idx + 1, nx, ny):
+                    return True
+            board[x][y] = word[idx] # 恢复
+            return False
+        
+        return any(dfs(0, i, j) for i in range(m) for j in range(n))
 
 # 测试
 if __name__ == "__main__":

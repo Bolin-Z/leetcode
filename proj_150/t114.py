@@ -1,51 +1,72 @@
-# 题目：918.环形子数组的最大和
-# 标签：动态规划 分治 数组 队列 单调队列
-# 难度：中等
-# 日期：12.29
+# 题目：35.搜索插入位置
+# 标签：数组 二分
+# 难度：简单
+# 日期：12.30
 
 from typing import *
-from math import *
 
 # 思路:
-# 最大子数组和可能在中间 或者 横跨边界
-# 对于横跨边界的可以考虑反向, 计算最小子数组和 
+# 二分查找
 
 class Solution:
-    def maxSubarraySumCircular(self, nums: List[int]) -> int:
-        # 在中间的情况
-        maxSum, minSum, totalSum = -inf, inf, 0
-        dp_max, dp_min = -inf, inf
-        for n in nums:
-            # 更新数组和
-            totalSum += n
-            # 更新最大子数组
-            dp_max = max(dp_max + n, n)
-            maxSum = max(maxSum, dp_max)
-            # 更新最小子数组
-            dp_min = min(dp_min + n, n)
-            minSum = min(minSum, dp_min)
-        return maxSum if minSum == totalSum else max(maxSum, totalSum - minSum)
+    def searchInsert(self, nums: List[int], target: int) -> int:
+        def binarySearch(left:int, right:int) -> int:
+            nonlocal target
+            if left > right:
+                return left
+            if left == right:
+                return left if nums[left] >= target else left + 1
+            mid = (left + right + 1) >> 1
+            if nums[mid] == target:
+                return mid
+            elif nums[mid] > target:
+                return binarySearch(left, mid - 1)
+            else:
+                return binarySearch(mid + 1, right)
+        return binarySearch(0, len(nums) - 1)
 
-
-    def maxSubarraySumCircular(self, nums: List[int]) -> int:
-        pass
     def test(self):
-        """test code
-        """
-        test_cases = [
-            {
-                "Input ": [],
-                "Expect": [],
-                "Output": []
-            }
-        ]
-        for i, case in enumerate(test_cases):
-            case["Output"].append(case["Input "]) # 调用求解
-            print(f"Test {i + 1}")
-            for key, val in case.items():
-                print(f"\t\t{key}: {val}")
+        nums = [1,3]
+        target = 4
+        self.searchInsert(nums, target)
 
 # 官方题解
+# 考虑插入时,即找到第一个 大于等于 target 的数的下标 如果都小于 target 返回 nums 长度
+class Solution:
+    def searchInsert(self, nums: List[int], target: int) -> int:
+        pass
+    
+    # 闭区间写法
+    def both_closed(self, nums: List[int], target:int) -> int:
+        left, right = 0, len(nums) - 1
+        while left <= right:
+            mid = (left + right) >> 1
+            if nums[mid] < target:
+                left = mid + 1
+            else:
+                right = mid - 1
+        return left
+    # 左闭右开
+    def left_closed_right_open(self, nums: List[int], target:int) -> int:
+        left, right = 0, len(nums)
+        while left < right:
+            mid = (left + right) >> 1
+            if nums[mid] < target:
+                left = mid + 1
+            else:
+                right = mid # 不同的地方
+        return left
+    
+    # 开区间
+    def both_open(self, nums: List[int], target:int) -> int:
+        left, right = -1, len(nums)
+        while left + 1 < right:
+            mid = (left + right) >> 1
+            if nums[mid] < target:
+                left = mid
+            else:
+                right = mid
+        return right
 
 # 测试
 if __name__ == "__main__":

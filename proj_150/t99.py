@@ -1,45 +1,47 @@
-# 题目：208.实现Trie(前缀树)
-# 标签：设计 字典树 哈希表 字符串
+# 题目：211.添加与搜索单词-数据结构设计
+# 标签：DFS 字典树 字符串
 # 难度：中等
 # 日期：12.25
 
 from typing import *
+from collections import *
+from math import *
 
 # 思路:
-#
+# 字典树 + DFS
+
 class TreeNode:
     def __init__(self, isword:bool=False) -> None:
-        self.isword:bool = isword
-        self.childs:Dict[str, TreeNode] = {}
+        self.isword = isword
+        self.childs:Dict[str,TreeNode] = {}
 
-class Trie:
+class WordDictionary:
 
     def __init__(self):
         self.root = TreeNode(False)
 
-    def insert(self, word: str) -> None:
+    def addWord(self, word: str) -> None:
         ptr = self.root
         for c in word:
             if c not in ptr.childs:
-                ptr.childs[c] = TreeNode(isword=False)
+                ptr.childs[c] = TreeNode(False)
             ptr = ptr.childs[c]
         ptr.isword = True
 
     def search(self, word: str) -> bool:
-        ptr = self.root
-        for c in word:
+        return self._search(self.root, word)
+
+    def _search(self, node:TreeNode, word:str) -> bool:
+        ptr = node
+        for idx,c in enumerate(word):
+            if c == ".":
+                for val in ptr.childs.values():
+                    if self._search(val, word[idx+1:]):
+                        return True
             if c not in ptr.childs:
                 return False
             ptr = ptr.childs[c]
         return ptr.isword
-
-    def startsWith(self, prefix: str) -> bool:
-        ptr = self.root
-        for c in prefix:
-            if c not in ptr.childs:
-                return False
-            ptr = ptr.childs[c]
-        return True
 
 class Solution:
     def test(self):

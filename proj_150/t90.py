@@ -1,4 +1,4 @@
-# 题目：200.岛屿数量
+# 题目：130.被围绕的区域
 # 标签：BFS DFS 并查集 数组 矩阵
 # 难度：中等
 # 日期：12.23
@@ -6,57 +6,50 @@
 from typing import *
 
 # 思路:
-# 求解连通的1的块数 每次碰到1做一次 DFS 消除所有 1
+# 从四个边界开始 找到不可捕获的区域 标记
+# 遍历一次 board 捕获可以捕获的区域
 
 class Solution:
-    def numIslands(self, grid: List[List[str]]) -> int:
-        ans = 0
-        m, n = len(grid), len(grid[0])
+    def solve(self, board: List[List[str]]) -> None:
+        row_num, col_num = len(board), len(board[0])
         def dfs(i:int, j:int) -> None:
-            if i < 0 or i >= m or j < 0 or j >= n or grid[i][j] != '1':
+            if i < 0 or i >= row_num or j < 0 or j >= col_num or board[i][j] != "O":
                 return
-            grid[i][j] = '2'
-            dfs(i, j - 1)
-            dfs(i, j + 1)
-            dfs(i - 1, j)
-            dfs(i + 1, j)
-        for i, row in enumerate(grid):
-            for j, c in enumerate(row):
-                if c == '1':
-                    dfs(i, j)
-                    ans += 1
-        return ans
+            board[i][j] = "Y"
+            dfs(i-1,j)
+            dfs(i+1,j)
+            dfs(i,j-1)
+            dfs(i,j+1)
+        for j in range(col_num):
+            dfs(0, j)
+            dfs(row_num - 1, j)
+        for i in range(row_num):
+            dfs(i, 0)
+            dfs(i, col_num - 1)
+        for i in range(row_num):
+            for j in range(col_num):
+                if board[i][j] == "Y":
+                    board[i][j] = "O"
+                elif board[i][j] == "O":
+                    board[i][j] = "X"
 
     def test(self):
-        grid = [
-            ["1","1","1","1","0"],
-            ["1","1","0","1","0"],
-            ["1","1","0","0","0"],
-            ["0","0","0","0","0"]
+        """test code
+        """
+        test_cases = [
+            {
+                "Input ": [],
+                "Expect": [],
+                "Output": []
+            }
         ]
-        self.numIslands(grid)
+        for i, case in enumerate(test_cases):
+            case["Output"].append(case["Input "]) # 调用求解
+            print(f"Test {i + 1}")
+            for key, val in case.items():
+                print(f"\t\t{key}: {val}")
 
 # 官方题解
-# BFS写法
-from collections import deque
-class Solution:
-    def numIslands(self, grid: List[List[str]]) -> int:
-        ans = 0
-        m, n = len(grid), len(grid[0])
-        for i, row in enumerate(grid):
-            for j, c in enumerate(row):
-                if c == "1":
-                    ans += 1
-                    grid[i][j] == "0"
-                    visit_que = deque([(i, j)])
-                    while visit_que:
-                        r, c = visit_que.popleft()
-                        for x, y in [(r-1,c),(r+1,c),(r,c-1),(r,c+1)]:
-                            if 0 <= x < m and 0 <= y < n and grid[x][y] == "1":
-                                visit_que.append((x, y))
-                                grid[x][y] = "0"
-        return ans
-
 
 # 测试
 if __name__ == "__main__":

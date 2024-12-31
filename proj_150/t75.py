@@ -1,62 +1,74 @@
-# 题目：117.填充每个节点的下一个右侧节点指针II
-# 标签：树 BFS DFS 链表 二叉树
+# 题目：114.二叉树展开为链表
+# 标签：栈 树 DFS 链表 二叉树
 # 难度：中等
-# 日期：12.21
+# 日期：12.22
 
 from typing import *
-from collections import deque
 
 # 思路:
-# ！！！题目理解有出入，不是连到同层下一个右子节点，其实就是连到同层下一个节点
-# 逐层遍历
-# 遍历每一层的时候给下一层链接好
-# 这样每一层的每个节点可以依赖与自己next的信息去给自己子层链接
+# 先序遍历的方式递归访问构造链表，返回链表的尾部
 
-# Definition for a Node.
-class Node:
-    def __init__(self, val: int = 0, left: 'Node' = None, right: 'Node' = None, next: 'Node' = None):
+# Definition for a binary tree node.
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
         self.val = val
         self.left = left
         self.right = right
-        self.next = next
 
 class Solution:
-    def connect(self, root: 'Node') -> 'Node':
-        if root is not None:
-            queue:Deque[Node] = deque()
-            queue.append(root)
-            while queue:
-                node = queue.popleft()
-                find = node.next
-                while find:
-                    if find.left:
-                        find = find.left
-                        break
-                    elif find.right:
-                        find = find.right
-                        break
-                    find = find.next
-                if node.left:
-                    node.left.next = node.right if node.right else find
-                    queue.append(node.left)
-                if node.right:
-                    node.right.next = find
-                    queue.append(node.right)
-        return root
+    def flatten(self, root: Optional[TreeNode]) -> None:
+        """
+        Do not return anything, modify root in-place instead.
+        """
+        if root:
+            self.tree_2_list(root)
+
+    def tree_2_list(self, root:Optional[TreeNode]) -> Optional[TreeNode]:
+        left, right, tail = root.left, root.right, root
+        if left:
+            tail = self.tree_2_list(left)
+            root.left = None
+            root.right = left
+        if right:
+            new_tail = self.tree_2_list(right)
+            tail.left = None
+            tail.right = right
+            tail = new_tail
+        return tail
+
 
     def test(self):
         """test code
         """
-        node = {n.val:n for n in [Node(val=i) for i in [1,2,3,4,5,7]]}
-        root = node[1]
-        root.left = node[2]
-        root.right = node[3]
-        node[2].left = node[4]
-        node[2].right = node[5]
-        node[3].right = node[7]
-        self.connect(root)
+        test_cases = [
+            {
+                "Input ": [],
+                "Expect": [],
+                "Output": []
+            }
+        ]
+        for i, case in enumerate(test_cases):
+            case["Output"].append(case["Input "]) # 调用求解
+            print(f"Test {i + 1}")
+            for key, val in case.items():
+                print(f"\t\t{key}: {val}")
 
 # 官方题解
+class Solution:
+    def flatten(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
+        """
+        Do not return anything, modify root in-place instead.
+        """
+        if root is None:
+            return None
+        left_tail = self.flatten(root.left)
+        right_tail = self.flatten(root.right)
+        if left_tail:
+            left_tail.right = root.right
+            root.right = root.left
+            root.left = None
+        return right_tail or left_tail or root
+
 
 # 测试
 if __name__ == "__main__":

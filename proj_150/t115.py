@@ -1,72 +1,87 @@
-# 题目：35.搜索插入位置
-# 标签：数组 二分
-# 难度：简单
+# 题目：74.搜索二维矩阵
+# 标签：数组 二分查找 矩阵
+# 难度：中等
 # 日期：12.30
 
 from typing import *
 
 # 思路:
-# 二分查找
+# 先纵向二分 再横向二分
 
 class Solution:
-    def searchInsert(self, nums: List[int], target: int) -> int:
-        def binarySearch(left:int, right:int) -> int:
-            nonlocal target
-            if left > right:
-                return left
-            if left == right:
-                return left if nums[left] >= target else left + 1
-            mid = (left + right + 1) >> 1
-            if nums[mid] == target:
-                return mid
-            elif nums[mid] > target:
-                return binarySearch(left, mid - 1)
-            else:
-                return binarySearch(mid + 1, right)
-        return binarySearch(0, len(nums) - 1)
-
-    def test(self):
-        nums = [1,3]
-        target = 4
-        self.searchInsert(nums, target)
-
-# 官方题解
-# 考虑插入时,即找到第一个 大于等于 target 的数的下标 如果都小于 target 返回 nums 长度
-class Solution:
-    def searchInsert(self, nums: List[int], target: int) -> int:
-        pass
-    
-    # 闭区间写法
-    def both_closed(self, nums: List[int], target:int) -> int:
-        left, right = 0, len(nums) - 1
+    def searchMatrix(self, matrix: List[List[int]], target: int) -> bool:
+        m, n = len(matrix), len(matrix[0])
+        left, right = 0, m - 1
         while left <= right:
             mid = (left + right) >> 1
-            if nums[mid] < target:
+            if matrix[mid][0] == target:
+                return True
+            elif matrix[mid][0] > target:
+                right = mid - 1
+            else:
+                left = mid + 1
+        search_col = right
+        left, right = 0, n - 1
+        while left <= right:
+            mid = (left + right) >> 1
+            if matrix[search_col][mid] == target:
+                return True
+            elif matrix[search_col][mid] > target:
+                right = mid - 1
+            else:
+                left = mid + 1
+        return False
+
+
+    def test(self):
+        """test code
+        """
+        test_cases = [
+            {
+                "Input ": [],
+                "Expect": [],
+                "Output": []
+            }
+        ]
+        for i, case in enumerate(test_cases):
+            case["Output"].append(case["Input "]) # 调用求解
+            print(f"Test {i + 1}")
+            for key, val in case.items():
+                print(f"\t\t{key}: {val}")
+
+# 官方题解
+# 排除法 每次比较右上角元素
+# 如果等于就是找到
+# 如果小于说明当前第一排都小于目标，删除
+# 如果大于说明当前最后一列都大于目标，删除
+class Solution:
+    def searchMatrix(self, matrix: List[List[int]], target: int) -> bool:
+        m, n = len(matrix), len(matrix[0])
+        i, j = 0, n - 1
+        while i < m and j >= 0:
+            if matrix[i][j] == target:
+                return True
+            elif matrix[i][j] < target:
+                i += 1
+            else:
+                j -= 1
+        return False
+
+# 一次二分
+class Solution:
+    def searchMatrix(self, matrix: List[List[int]], target: int) -> bool:
+        m, n = len(matrix), len(matrix[0])
+        left, right = 0, m * n - 1
+        while left <= right:
+            mid = (left + right) >> 1
+            x = matrix[mid // n][mid % n]
+            if x == target:
+                return True
+            elif x < target:
                 left = mid + 1
             else:
                 right = mid - 1
-        return left
-    # 左闭右开
-    def left_closed_right_open(self, nums: List[int], target:int) -> int:
-        left, right = 0, len(nums)
-        while left < right:
-            mid = (left + right) >> 1
-            if nums[mid] < target:
-                left = mid + 1
-            else:
-                right = mid # 不同的地方
-        return left
-    
-    # 开区间
-    def both_open(self, nums: List[int], target:int) -> int:
-        left, right = -1, len(nums)
-        while left + 1 < right:
-            mid = (left + right) >> 1
-            if nums[mid] < target:
-                left = mid
-            else:
-                right = mid
-        return right
+        return False
 
 # 测试
 if __name__ == "__main__":

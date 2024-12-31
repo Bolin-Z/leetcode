@@ -1,10 +1,9 @@
-# 题目：637.二叉树的层平均值
-# 标签：树 BFS DFS 二叉
+# 题目：104.二叉树的最大深度
+# 标签：数 DFS BFS 二叉树
 # 难度：简单
-# 日期：12.23
+# 日期：12.20
 
 from typing import *
-from statistics import mean
 
 # 思路:
 #
@@ -17,19 +16,27 @@ class TreeNode:
         self.right = right
 
 class Solution:
-    def averageOfLevels(self, root: Optional[TreeNode]) -> List[float]:
-        ans = []
-        if root:
-            cur_level:List[TreeNode] = [root]
-            while cur_level:
-                val = []
-                next_level = []
-                for n in cur_level:
-                    val.append(n.val)
-                    if n.left: next_level.append(n.left)
-                    if n.right: next_level.append(n.right)
-                ans.append(mean(val))
-                cur_level = next_level
+    def maxDepth(self, root: Optional[TreeNode]) -> int:
+        return self.__get_height(root)
+
+    def __get_height(self, n:Optional[TreeNode]) -> int:
+        if n is None:
+            return 0
+        else:
+            return 1 + max(self.__get_height(n.left), self.__get_height(n.right))
+# 自顶向下方法
+class Solution:
+    def maxDepth(self, root: Optional[TreeNode]) -> int:
+        ans = 0
+        def dfs(node: Optional[TreeNode], depth:int) -> None:
+            if node is None:
+                return
+            depth += 1
+            nonlocal ans
+            ans = max(ans, depth)
+            dfs(node.left, depth)
+            dfs(node.right, depth)
+        dfs(root, 0)
         return ans
 
     def test(self):

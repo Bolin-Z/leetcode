@@ -1,12 +1,13 @@
-# 题目：114.二叉树展开为链表
-# 标签：栈 树 DFS 链表 二叉树
-# 难度：中等
+# 题目：112.路径总和
+# 标签：树 二叉树 BFS DFS
+# 难度：简单
 # 日期：12.22
 
 from typing import *
+from collections import deque
 
 # 思路:
-# 先序遍历的方式递归访问构造链表，返回链表的尾部
+# DFS
 
 # Definition for a binary tree node.
 class TreeNode:
@@ -16,26 +17,36 @@ class TreeNode:
         self.right = right
 
 class Solution:
-    def flatten(self, root: Optional[TreeNode]) -> None:
-        """
-        Do not return anything, modify root in-place instead.
-        """
-        if root:
-            self.tree_2_list(root)
+    def hasPathSum(self, root: Optional[TreeNode], targetSum: int) -> bool:
+        return self.hasPathSum_BFS(root, targetSum)
 
-    def tree_2_list(self, root:Optional[TreeNode]) -> Optional[TreeNode]:
-        left, right, tail = root.left, root.right, root
-        if left:
-            tail = self.tree_2_list(left)
-            root.left = None
-            root.right = left
-        if right:
-            new_tail = self.tree_2_list(right)
-            tail.left = None
-            tail.right = right
-            tail = new_tail
-        return tail
+    def hasPathSum_BFS(self, root: Optional[TreeNode], targetSum: int) -> bool:
+        if root is None:
+            return False
+        que_node = deque([root])
+        que_val = deque([root.val])
+        while que_node:
+            cur_node = que_node.popleft()
+            cur_sum = que_val.popleft()
+            if not cur_node.left and not cur_node.right:
+                if cur_sum == targetSum:
+                    return True
+                continue
+            if cur_node.left:
+                que_node.append(cur_node.left)
+                que_val.append(cur_sum + cur_node.left.val)
+            if cur_node.right:
+                que_node.append(cur_node.right)
+                que_val.append(cur_sum + cur_node.right.val)
+        return False
 
+    def hasPathSum_DFS(self, root: Optional[TreeNode], targetSum: int) -> bool:
+        if root is None:
+            return False
+        targetSum -= root.val
+        if not root.left and not root.righ:
+            return targetSum == 0
+        return self.hasPathSum_DFS(root.left, targetSum) or self.hasPathSum_DFS(root.right, targetSum)
 
     def test(self):
         """test code
@@ -54,21 +65,6 @@ class Solution:
                 print(f"\t\t{key}: {val}")
 
 # 官方题解
-class Solution:
-    def flatten(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
-        """
-        Do not return anything, modify root in-place instead.
-        """
-        if root is None:
-            return None
-        left_tail = self.flatten(root.left)
-        right_tail = self.flatten(root.right)
-        if left_tail:
-            left_tail.right = root.right
-            root.right = root.left
-            root.left = None
-        return right_tail or left_tail or root
-
 
 # 测试
 if __name__ == "__main__":

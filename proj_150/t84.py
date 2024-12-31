@@ -1,10 +1,9 @@
-# 题目：637.二叉树的层平均值
-# 标签：树 BFS DFS 二叉
-# 难度：简单
+# 题目：102.二叉树的层序遍历
+# 标签：树 BFS 二叉树
+# 难度：中等
 # 日期：12.23
 
 from typing import *
-from statistics import mean
 
 # 思路:
 #
@@ -16,22 +15,23 @@ class TreeNode:
         self.left = left
         self.right = right
 
+from collections import deque
 class Solution:
-    def averageOfLevels(self, root: Optional[TreeNode]) -> List[float]:
+    def levelOrder(self, root: Optional[TreeNode]) -> List[List[int]]:
         ans = []
         if root:
-            cur_level:List[TreeNode] = [root]
-            while cur_level:
-                val = []
-                next_level = []
-                for n in cur_level:
-                    val.append(n.val)
-                    if n.left: next_level.append(n.left)
-                    if n.right: next_level.append(n.right)
-                ans.append(mean(val))
-                cur_level = next_level
+            visit_que = deque([root])
+            while visit_que:
+                level_size = len(visit_que)
+                vals = []
+                for _ in range(level_size):
+                    node = visit_que.popleft()
+                    vals.append(node.val)
+                    if node.left: visit_que.append(node.left)
+                    if node.right: visit_que.append(node.right)
+                ans.append(vals)
         return ans
-
+        
     def test(self):
         """test code
         """

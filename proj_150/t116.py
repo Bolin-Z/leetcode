@@ -1,37 +1,23 @@
-# 题目：74.搜索二维矩阵
-# 标签：数组 二分查找 矩阵
+# 题目：162.寻找峰值 *
+# 标签：数组 二分
 # 难度：中等
 # 日期：12.30
 
 from typing import *
 
 # 思路:
-# 先纵向二分 再横向二分
+#
 
 class Solution:
-    def searchMatrix(self, matrix: List[List[int]], target: int) -> bool:
-        m, n = len(matrix), len(matrix[0])
-        left, right = 0, m - 1
+    def findPeakElement(self, nums: List[int]) -> int:
+        left, right = 0, len(nums) - 2 # [0, n - 2]
         while left <= right:
             mid = (left + right) >> 1
-            if matrix[mid][0] == target:
-                return True
-            elif matrix[mid][0] > target:
-                right = mid - 1
+            if nums[mid] > nums[mid + 1]:
+                right = mid - 1 # 当 ans = mid 为唯一峰值时 left 会不断移动直到 left == right
             else:
-                left = mid + 1
-        search_col = right
-        left, right = 0, n - 1
-        while left <= right:
-            mid = (left + right) >> 1
-            if matrix[search_col][mid] == target:
-                return True
-            elif matrix[search_col][mid] > target:
-                right = mid - 1
-            else:
-                left = mid + 1
-        return False
-
+                left = mid + 1 # 此时就会进入这一行 mid = left = right => left' = left + 1 = ans
+        return left
 
     def test(self):
         """test code
@@ -50,38 +36,10 @@ class Solution:
                 print(f"\t\t{key}: {val}")
 
 # 官方题解
-# 排除法 每次比较右上角元素
-# 如果等于就是找到
-# 如果小于说明当前第一排都小于目标，删除
-# 如果大于说明当前最后一列都大于目标，删除
-class Solution:
-    def searchMatrix(self, matrix: List[List[int]], target: int) -> bool:
-        m, n = len(matrix), len(matrix[0])
-        i, j = 0, n - 1
-        while i < m and j >= 0:
-            if matrix[i][j] == target:
-                return True
-            elif matrix[i][j] < target:
-                i += 1
-            else:
-                j -= 1
-        return False
-
-# 一次二分
-class Solution:
-    def searchMatrix(self, matrix: List[List[int]], target: int) -> bool:
-        m, n = len(matrix), len(matrix[0])
-        left, right = 0, m * n - 1
-        while left <= right:
-            mid = (left + right) >> 1
-            x = matrix[mid // n][mid % n]
-            if x == target:
-                return True
-            elif x < target:
-                left = mid + 1
-            else:
-                right = mid - 1
-        return False
+# 数组两端都认为是-∞, 就是说峰值必然存在
+# 考虑 nums[i] 和 nums[i+1]
+# 如果 i < n - 1 且 nums[i] < nums[i+1] 则 [i+1, n-1]中一定有一个峰值
+# 反言之 当 nums[i] >= nums[i+1] 时 [0, i] 中一定有一个峰值
 
 # 测试
 if __name__ == "__main__":

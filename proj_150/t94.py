@@ -1,5 +1,5 @@
-# 题目：207.课程表
-# 标签：BFS DFS 图 拓扑排序
+# 题目：210.课程表II
+# 标签：DFS BFS 图 拓扑排序
 # 难度：中等
 # 日期：12.24
 
@@ -7,32 +7,29 @@ from typing import *
 from collections import deque
 
 # 思路:
-# 有向图判环 使用拓扑排序 如果有节点无法排序就是有环
-
-class Node:
-    def __init__(self):
-        self.outedges = []
-        self.indegree = 0
+# 与 t94 207.课程表 一样的思路
 
 class Solution:
-    def canFinish(self, numCourses: int, prerequisites: List[List[int]]) -> bool:
-        nodes = [Node() for _ in range(numCourses)]
-        for request in prerequisites:
-            v1, v2 = request
-            nodes[v1].outedges.append(v2)
-            nodes[v2].indegree += 1
+    def findOrder(self, numCourses: int, prerequisites: List[List[int]]) -> List[int]:
+        neighbors = [[] for _ in range(numCourses)]
+        indegree = [0 for _ in range(numCourses)]
+        for prerequest in prerequisites:
+            c1, c2 = prerequest
+            neighbors[c2].append(c1)
+            indegree[c1] += 1
         que = deque()
-        for node in nodes:
-            if node.indegree == 0:
-                que.append(node)
+        for idx in range(numCourses):
+            if indegree[idx] == 0:
+                que.append(idx)
+        ans = []
         while que:
-            node = que.popleft()
-            for n in node.outedges:
-                nodes[n].indegree -= 1
-                if nodes[n].indegree == 0:
-                    que.append(nodes[n])
-            numCourses -= 1
-        return numCourses == 0
+            idx = que.popleft()
+            ans.append(idx)
+            for n in neighbors[idx]:
+                indegree[n] -= 1
+                if indegree[n] == 0:
+                    que.append(n)       
+        return ans if len(ans) == numCourses else []
 
     def test(self):
         """test code

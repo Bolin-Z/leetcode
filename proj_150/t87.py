@@ -1,12 +1,12 @@
-# 题目：530.二叉搜索树的最小绝对差值
-# 标签：树 DFS BFS 二叉搜索树 二叉树
-# 难度：简单
+# 题目：230.二叉搜索树中第K小的元素
+# 标签：树 DFS 二叉搜索树 二叉树
+# 难度：中等
 # 日期：12.23
 
 from typing import *
 
 # 思路:
-# 二叉搜索树中序遍历就是有序数组
+# 中序遍历 累计
 
 # Definition for a binary tree node.
 class TreeNode:
@@ -15,22 +15,21 @@ class TreeNode:
         self.left = left
         self.right = right
 
-from math import inf
 class Solution:
-    def getMinimumDifference(self, root: Optional[TreeNode]) -> int:
-        min_diff, last_val = inf, inf
-        visit_stack = [root]
-        while visit_stack[-1].left:
-            visit_stack.append(visit_stack[-1].left)
-        while visit_stack:
-            node = visit_stack.pop()
-            min_diff = min(min_diff, abs(node.val - last_val))
-            last_val = node.val
-            if node.right:
-                visit_stack.append(node.right)
-                while visit_stack[-1].left:
-                    visit_stack.append(visit_stack[-1].left)
-        return min_diff
+    def kthSmallest(self, root: Optional[TreeNode], k: int) -> int:
+        counter, ans = 0, None
+        def dfs(node: TreeNode) -> None:
+            nonlocal counter, ans
+            if node is None or ans is not None:
+                return
+            dfs(node.left)
+            counter += 1
+            if counter == k:
+                ans = node.val
+                return
+            dfs(node.right)
+        dfs(root)
+        return ans
 
     def test(self):
         """test code
@@ -49,20 +48,19 @@ class Solution:
                 print(f"\t\t{key}: {val}")
 
 # 官方题解
-# 使用递归实现
+# 中序遍历迭代写法
 class Solution:
-    def getMinimumDifference(self, root: Optional[TreeNode]) -> int:
-        pre, ans = -1, inf
-        def dfs(node: TreeNode) -> None:
-            if node is None: return
-            nonlocal pre, ans
-            dfs(node.left)
-            x = node.val
-            if pre != -1: ans = min(ans, x - pre)
-            pre = x
-            dfs(node.right)
-        dfs(root)
-        return ans
+    def kthSmallest(self, root: Optional[TreeNode], k: int) -> int:
+        stack = []
+        while root or stack:
+            while root: # 一路向左
+                stack.append(root)
+                root = root.left
+            root = stack.pop()
+            k -= 1
+            if k == 0:
+                return root.val
+            root = root.right
 # 测试
 if __name__ == "__main__":
     solver = Solution()

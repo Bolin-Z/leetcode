@@ -1,48 +1,67 @@
-# 题目：52.N皇后II
-# 标签：回溯
-# 难度：困难
+# 题目：22.括号生成 *
+# 标签：字符串 DP 回溯
+# 难度：中等
 # 日期：12.26
 
 from typing import *
+from functools import lru_cache
 
 # 思路:
-# DPLL 回溯
+#
 
 class Solution:
-    def totalNQueens(self, n: int) -> int:
-        count = 0
-        placed:List[Tuple[int, int]] = []        
-        def check_valid(row:int, col:int) -> bool:
-            for nrow, ncol in placed:
-                if ncol == col or (abs(ncol - col) == abs(nrow - row)): # 在一条竖线或斜线上，因为按行放，肯定满足row不相同
-                    return False
-            return True
-        def dfs(row:int) -> None:
-            nonlocal count, placed
-            if row == n:
-                count += 1
+    def generateParenthesis(self, n: int) -> List[str]:
+        ans = []
+        path = []
+        def dfs(left:int, right:int) -> None:
+            if left == n and right == n:
+                ans.append("".join(path))
                 return
-            vaild_point = []
-            for j in range(n):
-                if check_valid(row, j):
-                    vaild_point.append((row, j))
-            for point in vaild_point:
-                placed.append(point)
-                dfs(row + 1)
-                placed.pop()
-        dfs(0)
-        return count
+            if left < n:
+                path.append("(")
+                dfs(left + 1, right)
+                path.pop()
+            # if right < n and right + 1 <= left:
+            if right < left: # 化简
+                path.append(")")
+                dfs(left, right + 1)
+                path.pop()
+
+        dfs(0, 0)
+        return ans
 
     def test(self):
-        for i in range(1, 10):
-            print(f"{self.totalNQueens(i)}")
+        self.generateParenthesis(2)
 
 # 官方题解
-# 打表 (笑
+# 递归：生成的括号数目
 class Solution:
-    def totalNQueens(self, n: int) -> int:
-        ans = [0,1,0,0,2,10,4,40,92,352]
-        return ans[n]
+    @lru_cache(None)
+    def generateParenthesis(self, n: int) -> List[str]:
+        if n == 0:
+            return ['']
+        ans = []
+        for c in range(n):
+            for left in self.generateParenthesis(c):
+                for right in self.generateParenthesis(n - 1 - c):
+                    ans.append(f"({left}){right}") # (a)b a b 为合法括号序列
+        return ans
+# 由上面的可以有DP
+class Solution:
+    def generateParenthesis(self, n: int) -> List[str]:
+        # dp[i] 为生成 i 个括号的所有可能
+        dp = [[] for _ in range(n + 1)]
+        dp[0].append("")
+        for i in range(1, n + 1):
+            for j in range(i):
+                k = i - 1 - j
+                for left in dp[j]:
+                    for right in dp[k]:
+                        dp[i].append(f"({left}){right}")
+        return dp[n]
+    def test(self):
+        self.generateParenthesis(3)
+
 # 测试
 if __name__ == "__main__":
     solver = Solution()

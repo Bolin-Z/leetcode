@@ -1,68 +1,46 @@
-# 题目：79.单词搜索
-# 标签：数组 字符串 回溯 矩阵
-# 难度：中等
+# 题目：108.将有序数组转换为二叉搜索树(平衡的)
+# 标签：树 二叉搜索树 数组 分治 二叉树
+# 难度：简单
 # 日期：12.26
 
 from typing import *
 
 # 思路:
-#
+# 数组有序, 抽中点
+
+# Definition for a binary tree node.
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
 
 class Solution:
-    def exist(self, board: List[List[str]], word: str) -> bool:
-        m, n = len(board), len(board[0])
-        def dfs(idx:int, x:int, y:int) -> bool:
-            if idx == len(word):
-                return True
-            if 0 <= x < m and 0 <= y < n and board[x][y] == word[idx]:
-                board[x][y] = "#"
-                for nx, ny in [(x + 1, y),(x - 1, y),(x, y + 1), (x, y - 1)]:
-                    if dfs(idx + 1, nx, ny):
-                        return True
-                board[x][y] = word[idx]
-            return False
-        for i in range(m):
-            for j in range(n):
-                if dfs(0, i, j):
-                    return True
-        return False
-
-
+    def sortedArrayToBST(self, nums: List[int]) -> Optional[TreeNode]:
+        def bulid_tree(left:int, right:int) -> Optional[TreeNode]:
+            if right < left:
+                return None
+            if left == right:
+                return TreeNode(nums[left])
+            mid = (left + right) // 2
+            root = TreeNode(nums[mid])
+            root.left = bulid_tree(left, mid - 1)
+            root.right = bulid_tree(mid + 1, right)
+            return root
+        return bulid_tree(0, len(nums) - 1)
 
     def test(self):
-        board = [
-            ["A","B","C","E"],
-            ["S","F","C","S"],
-            ["A","D","E","E"]
-        ]
-        word = "ABCCED"
-        self.exist(board, word)
+        nums = [-10,-3,0,5,9]
+        self.sortedArrayToBST(nums)
 
 # 官方题解
-# 可以优化的点 word开头字母出现次数为 x，结尾字母出现次数为 y
-# 当 y < x 时可以将单词反转(匹配更少次数)
+# 简洁写法
 class Solution:
-    def exist(self, board: List[List[str]], word: str) -> bool:
-        cnt = Counter(c for row in board for c in row)
-        if not cnt >= Counter(word): # 不满足字符出现数
-            return False
-        if cnt[word[-1]] < cnt[word[0]]: # 反转
-            word = word[::-1]
-        m, n = len(board), len(board[0])
-        
-        def dfs(idx:int, x:int, y:int) -> bool:
-            if board[x][y] != word[idx]:
-                return False
-            if idx == len(word) - 1: # 过了第一个 if 说明字符匹配
-                return True
-            board[x][y] = "#" # 标记走过
-            for nx, ny in (x, y - 1), (x, y + 1), (x - 1, y), (x + 1, y):
-                if 0 <= nx < m and 0 <= ny < n and dfs(idx + 1, nx, ny):
-                    return True
-            board[x][y] = word[idx] # 恢复
-            return False
-        
-        return any(dfs(0, i, j) for i in range(m) for j in range(n))
+    def sortedArrayToBST(self, nums: List[int]) -> Optional[TreeNode]:
+        if not nums:
+            return None
+        m = len(nums) // 2
+        return TreeNode(nums[m], self.sortedArrayToBST(nums[0:m]), self.sortedArrayToBST(nums[m+1:]))
 
 # 测试
 if __name__ == "__main__":

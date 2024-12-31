@@ -1,12 +1,13 @@
-# 题目：124.二叉树中的最大路径和 *
-# 标签：树 DFS DP 二叉树
-# 难度：困难
+# 题目：173.二叉搜索树迭代器
+# 标签：栈 树 设计 二叉搜索树 迭代器
+# 难度：中等
 # 日期：12.22
 
 from typing import *
-from math import inf, sum
+from collections import deque
 
 # 思路:
+#
 
 # Definition for a binary tree node.
 class TreeNode:
@@ -15,39 +16,43 @@ class TreeNode:
         self.left = left
         self.right = right
 
+class BSTIterator:
+
+    def __init__(self, root: Optional[TreeNode]):
+        self.visit_stack = deque([root])
+        ptr = root.left
+        while ptr:
+            self.visit_stack.append(ptr)
+            ptr = ptr.left
+        self.next_val = self.visit_stack[-1].val - 1
+
+    def next(self) -> int:
+        top = self.visit_stack.pop()
+        ptr = top.right
+        while ptr:
+            self.visit_stack.append(ptr)
+            ptr = ptr.left
+        return top.val
+
+    def hasNext(self) -> bool:
+        return len(self.visit_stack) != 0
+
 class Solution:
-    def maxPathSum(self, root: Optional[TreeNode]) -> int:
-        ans = -inf
-        def dfs(n:Optional[TreeNode]) -> int:
-            """
-            计算从叶子节点到当前节点n的最大路径
-            """
-            if n is None:
-                return 0
-            left_sum = dfs(n.left)
-            right_sum = dfs(n.right)
-            nonlocal ans
-            ans = max(ans, left_sum + right_sum + n.val)
-            return max(max(left_sum, right_sum) + n.val, 0)
-        dfs(root)
-        return ans
-
-
     def test(self):
-        """test code
-        """
-        test_cases = [
-            {
-                "Input ": [],
-                "Expect": [],
-                "Output": []
-            }
-        ]
-        for i, case in enumerate(test_cases):
-            case["Output"].append(case["Input "]) # 调用求解
-            print(f"Test {i + 1}")
-            for key, val in case.items():
-                print(f"\t\t{key}: {val}")
+        node = {n.val:n for n in [TreeNode(val=i) for i in [7, 3, 15, 9, 20]]}
+        root = node[7]
+        node[7].left = node[3]
+        node[7].right = node[15]
+        node[15].left = node[9]
+        node[15].right = node[20]
+        iter = BSTIterator(root)
+        iter.next()
+        iter.next()
+        iter.hasNext()
+        iter.next()
+        iter.hasNext()
+        iter.next()
+        iter.hasNext()
 
 # 官方题解
 

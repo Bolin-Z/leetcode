@@ -1,4 +1,4 @@
-# 题目：102.二叉树的层序遍历
+# 题目：103.二叉树的锯齿形层序遍历
 # 标签：树 BFS 二叉树
 # 难度：中等
 # 日期：12.23
@@ -17,36 +17,34 @@ class TreeNode:
 
 from collections import deque
 class Solution:
-    def levelOrder(self, root: Optional[TreeNode]) -> List[List[int]]:
+    def zigzagLevelOrder(self, root: Optional[TreeNode]) -> List[List[int]]:
         ans = []
         if root:
+            left_to_right = True
             visit_que = deque([root])
             while visit_que:
-                level_size = len(visit_que)
                 vals = []
+                level_size = len(visit_que)
                 for _ in range(level_size):
                     node = visit_que.popleft()
                     vals.append(node.val)
                     if node.left: visit_que.append(node.left)
                     if node.right: visit_que.append(node.right)
-                ans.append(vals)
+                if left_to_right:
+                    left_to_right = False
+                    ans.append(vals)
+                else:
+                    left_to_right = True
+                    ans.append(vals[::-1])
         return ans
-        
+
     def test(self):
-        """test code
-        """
-        test_cases = [
-            {
-                "Input ": [],
-                "Expect": [],
-                "Output": []
-            }
-        ]
-        for i, case in enumerate(test_cases):
-            case["Output"].append(case["Input "]) # 调用求解
-            print(f"Test {i + 1}")
-            for key, val in case.items():
-                print(f"\t\t{key}: {val}")
+        node = {n.val:n for n in [TreeNode(val=i) for i in [3,9,20,15,7]]}
+        node[3].left = node[9]
+        node[3].right = node[20]
+        node[20].left = node[15]
+        node[20].right = node[7]
+        self.zigzagLevelOrder(node[3])
 
 # 官方题解
 

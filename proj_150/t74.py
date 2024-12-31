@@ -1,71 +1,60 @@
-# 题目：106.从中序与后序遍历构造二叉树
-# 标签：树 数组 哈希 分治 二叉
+# 题目：117.填充每个节点的下一个右侧节点指针II
+# 标签：树 BFS DFS 链表 二叉树
 # 难度：中等
 # 日期：12.21
 
 from typing import *
+from collections import deque
 
 # 思路:
-#
+# ！！！题目理解有出入，不是连到同层下一个右子节点，其实就是连到同层下一个节点
+# 逐层遍历
+# 遍历每一层的时候给下一层链接好
+# 这样每一层的每个节点可以依赖与自己next的信息去给自己子层链接
 
-# Definition for a binary tree node.
-class TreeNode:
-    def __init__(self, val=0, left=None, right=None):
+# Definition for a Node.
+class Node:
+    def __init__(self, val: int = 0, left: 'Node' = None, right: 'Node' = None, next: 'Node' = None):
         self.val = val
         self.left = left
         self.right = right
+        self.next = next
 
 class Solution:
-    def buildTree(self, inorder: List[int], postorder: List[int]) -> Optional[TreeNode]:
-        return self.__iteration(inorder, postorder)
-    
-    def __recursion(self, inorder: List[int], postorder: List[int]) -> Optional[TreeNode]:
-        def construct_tree(inorder:List[int], postorder:List[int]) -> Optional[TreeNode]:
-            if postorder:
-                root = TreeNode(postorder[-1])
-                idx = inorder.index(root.val)
-                root.left = construct_tree(inorder[:idx], postorder[:idx])
-                root.right = construct_tree(inorder[idx + 1:], postorder[idx:len(postorder) - 1])
-                return root
-            return None
-        return construct_tree(inorder, postorder)
-    
-    def __iteration(self, inorder: List[int], postorder: List[int]) -> Optional[TreeNode]:
-        if not postorder:
-            return None
-        root = TreeNode(postorder[-1])
-        stack = [root]
-        inorder_idx = len(inorder) - 1
-        for i in range(len(postorder) - 2, -1, -1):
-            postorder_val = postorder[i]
-            node = stack[-1]
-            if node.val != inorder[inorder_idx]:
-                node.right = TreeNode(postorder_val)
-                stack.append(node.right)
-            else:
-                while stack and stack[-1].val == inorder[inorder_idx]:
-                    node = stack.pop()
-                    inorder_idx -= 1
-                node.left = TreeNode(postorder_val)
-                stack.append(node.left)
+    def connect(self, root: 'Node') -> 'Node':
+        if root is not None:
+            queue:Deque[Node] = deque()
+            queue.append(root)
+            while queue:
+                node = queue.popleft()
+                find = node.next
+                while find:
+                    if find.left:
+                        find = find.left
+                        break
+                    elif find.right:
+                        find = find.right
+                        break
+                    find = find.next
+                if node.left:
+                    node.left.next = node.right if node.right else find
+                    queue.append(node.left)
+                if node.right:
+                    node.right.next = find
+                    queue.append(node.right)
         return root
-    
 
     def test(self):
         """test code
         """
-        test_cases = [
-            {
-                "Input ": [[9,3,15,20,7], [9,15,7,20,3]],
-                "Expect": [],
-                "Output": []
-            }
-        ]
-        for i, case in enumerate(test_cases):
-            case["Output"].append(self.buildTree(case["Input "][0], case["Input "][1])) # 调用求解
-            print(f"Test {i + 1}")
-            for key, val in case.items():
-                print(f"\t\t{key}: {val}")
+        node = {n.val:n for n in [Node(val=i) for i in [1,2,3,4,5,7]]}
+        root = node[1]
+        root.left = node[2]
+        root.right = node[3]
+        node[2].left = node[4]
+        node[2].right = node[5]
+        node[3].right = node[7]
+        self.connect(root)
 
 # 官方题解
 

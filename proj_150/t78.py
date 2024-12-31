@@ -1,13 +1,12 @@
-# 题目：129.求根节点到叶节点数字之和
-# 标签：树 DFS 二叉树
-# 难度：中等
+# 题目：124.二叉树中的最大路径和 *
+# 标签：树 DFS DP 二叉树
+# 难度：困难
 # 日期：12.22
 
 from typing import *
-from collections import deque
+from math import inf, sum
 
 # 思路:
-# DFS
 
 # Definition for a binary tree node.
 class TreeNode:
@@ -17,20 +16,22 @@ class TreeNode:
         self.right = right
 
 class Solution:
-    def sumNumbers(self, root: Optional[TreeNode]) -> int:
-        total_sum = 0
-        def dfs(node:Optional[TreeNode], val:int) -> None:
-            if node:
-                tmp = val * 10 + node.val
-                if not node.left and not node.right: # leaf
-                    nonlocal total_sum
-                    total_sum += tmp
-                if node.left:
-                    dfs(node.left, tmp)
-                if node.right:
-                    dfs(node.right, tmp)
-        dfs(root, 0)
-        return total_sum
+    def maxPathSum(self, root: Optional[TreeNode]) -> int:
+        ans = -inf
+        def dfs(n:Optional[TreeNode]) -> int:
+            """
+            计算从叶子节点到当前节点n的最大路径
+            """
+            if n is None:
+                return 0
+            left_sum = dfs(n.left)
+            right_sum = dfs(n.right)
+            nonlocal ans
+            ans = max(ans, left_sum + right_sum + n.val)
+            return max(max(left_sum, right_sum) + n.val, 0)
+        dfs(root)
+        return ans
+
 
     def test(self):
         """test code
@@ -49,15 +50,7 @@ class Solution:
                 print(f"\t\t{key}: {val}")
 
 # 官方题解
-# dfs带返回值的写法
-class Solution:
-    def sumNumbers(self, root: Optional[TreeNode], x:int=0) -> int:
-        if root is None:
-            return 0
-        x = x * 10 + root.val
-        if root.left is root.right: # left == right == None
-            return x
-        return self.sumNumbers(root.left, x) + self.sumNumbers(root.right, x)
+
 # 测试
 if __name__ == "__main__":
     solver = Solution()

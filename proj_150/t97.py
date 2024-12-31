@@ -1,55 +1,50 @@
-# 题目：433.最小基因变化
+# 题目：127.单词接龙
 # 标签：BFS 哈希 字符串
-# 难度：中等
+# 难度：困难
 # 日期：12.24
 
 from typing import *
-from collections import deque
+from collections import deque, defaultdict
+from math import inf
 
 # 思路:
-# 对bank库建图 只相差一个字符的基因间存在一条无向边
-# 将 start 加入，连边，最短路(因为每条边cost相同，可以BFS)
-
-class Gene:
-    def __init__(self, gene:str) -> None:
-        self.gene = gene
-        self.neighbours = []
+# 和 t97 433.最小基因变化 相同 只差一个字母的 word 形成边 BFS
 
 class Solution:
-    def minMutation(self, startGene: str, endGene: str, bank: List[str]) -> int:
-        if startGene == endGene: return 0
-        gene_map = {g:Gene(g) for g in bank}
-        gene_list = list(gene_map.values())
-        for i in range(0, len(gene_list) - 1):
-            for j in range(i + 1, len(gene_list)):
-                self.connect(gene_list[i], gene_list[j])
-        if endGene not in gene_map:
-            return -1
-        target = gene_map[endGene]
-        start_gene = Gene(startGene)
-        for g in gene_list:
-            self.connect(start_gene, g)
-        vis = set([start_gene])
-        q = deque([(start_gene, 0)])
-        while q:
-            gene, step = q.popleft()
-            for n in gene.neighbours:
-                if n == target:
-                    return step + 1
-                if n not in vis:
-                    vis.add(n)
-                    q.append((n, step + 1))
-        return -1
+    def ladderLength(self, beginWord: str, endWord: str, wordList: List[str]) -> int:
+        neighbors = {word:[] for word in wordList}
+        for i in range(len(wordList) - 1):
+            for j in range(i + 1, len(wordList)):
+                word1, word2 = wordList[i], wordList[j]
+                if self.is_neighbor(word1, word2):
+                    neighbors[word1].append(word2)
+                    neighbors[word2].append(word1)
+        if endWord in neighbors:
+            if beginWord not in neighbors:
+                neighbors[beginWord] = []
+                for word in wordList:
+                    if self.is_neighbor(beginWord, word):
+                        neighbors[beginWord].append(word)
+                        neighbors[word].append(beginWord)
+            vis = set([beginWord])
+            q = deque([(beginWord, 1)])
+            while q:
+                word, step = q.popleft()
+                for nxtword in neighbors[word]:
+                    if nxtword == endWord:
+                        return step + 1
+                    elif nxtword not in vis:
+                        vis.add(nxtword)
+                        q.append((nxtword, step + 1))
+        return 0
 
-    def connect(self, genx:Gene, geny:Gene) -> None:
+    def is_neighbor(self, word1:str, word2:str) -> bool:
         diff = 0
-        for i in range(len(genx.gene)):
-            if genx.gene[i] != geny.gene[i]:
+        for i in range(len(word1)):
+            if word1[i] != word2[i]:
                 diff += 1
-                if diff > 1:
-                    return
-        genx.neighbours.append(geny)
-        geny.neighbours.append(genx)
+                if diff > 1: return False
+        return True
 
     def test(self):
         """test code
@@ -68,6 +63,73 @@ class Solution:
                 print(f"\t\t{key}: {val}")
 
 # 官方题解
+# 双向BFS + 虚拟节点 hit -> *it h*t hi*
+class Solution:
+    def ladderLength(self, beginWord: str, endWord: str, wordList: List[str]) -> int:
+        def addWord(word: str):
+            if word not in wordId:
+                nonlocal nodeNum
+                wordId[word] = nodeNum
+                nodeNum += 1
+        
+        def addEdge(word: str):
+            addWord(word)
+            id1 = wordId[word]
+            chars = list(word)
+            for i in range(len(chars)): # 链接到虚拟节点
+                tmp = chars[i]
+                chars[i] = "*"
+                newWord = "".join(chars)
+                addWord(newWord)
+                id2 = wordId[newWord]
+                edge[id1].append(id2)
+                edge[id2].append(id1)
+                chars[i] = tmp
+        
+        wordId = dict()
+        edge = defaultdict(list)
+        nodeNum = 0
+
+        for word in wordList:
+            addEdge(word)
+        
+        addEdge(beginWord)
+        if endWord not in wordId:
+            return 0
+        
+        disBegin = [inf for _ in range(nodeNum)]
+        beginId = wordId[beginWord]
+        disBegin[beginId] = 0
+        queBegin = deque([beginId])
+
+        disEnd = [inf for _ in range(nodeNum)]
+        endId = wordId[endWord]
+        disEnd[endId] = 0
+        queEnd = deque([endId])
+
+        while queBegin or queEnd:
+            # 正向
+            queBeginSize = len(queBegin)
+            for _ in range(queBeginSize):
+                nodeBegin = queBegin.popleft()
+                if disEnd[nodeBegin] != inf: # 交汇
+                    return (disBegin[nodeBegin] + disEnd[nodeBegin]) // 2 + 1
+                for it in edge[nodeBegin]:
+                    if disBegin[it] == inf: # 还未访问
+                        disBegin[it] = disBegin[nodeBegin] + 1
+                        queBegin.append(it)
+            # 反向
+            queEndSize = len(queEnd)
+            for _ in range(queEndSize):
+                nodeEnd = queEnd.popleft()
+                if disBegin[nodeEnd] != inf:
+                    return (disBegin[nodeEnd] + disEnd[nodeEnd]) // 2 + 1
+                for it in edge[nodeEnd]:
+                    if disEnd[it] == inf:
+                        disEnd[it] = disEnd[nodeEnd] + 1
+                        queEnd.append(it)
+        return 0
+
 
 # 测试
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
-# 题目：101.对称二叉树
-# 标签：树 DFS BFS 二叉树
-# 难度：简单
+# 题目：105.从前序与中序遍历构造二叉树
+# 标签：树 数组 哈希 分治 二叉
+# 难度：中等
 # 日期：12.20
 
 from typing import *
@@ -16,31 +16,34 @@ class TreeNode:
         self.right = right
 
 class Solution:
-    def isSymmetric(self, root: Optional[TreeNode]) -> bool:
-        return self.__iteration(root)
-
-    def __recursion(self, root: Optional[TreeNode]) -> bool:
-        if root is None: return True
-        return self.__check(root.left, root.right)
-
-    def __check(self, p:Optional[TreeNode], q:Optional[TreeNode]) -> bool:
-        if p is None and q is None: return True
-        if p is not None and q is not None:
-            return p.val == q.val and self.__check(p.left, q.right) and self.__check(p.right, q.left)
-        return False
-
-    def __iteration(self, root: Optional[TreeNode]) -> bool:
-        if root is None: return True
-        check_stack = [[root.left, root.right]]
-        while check_stack:
-            p, q = check_stack.pop()
-            if (p is None and q is not None) or (p is not None and q is None):
-                return False
-            elif p and q:
-                if p.val != q.val: return False
-                else:
-                    check_stack.extend([[p.left, q.right],  [p.right, q.left]])
-        return True
+    # def buildTree(self, preorder: List[int], inorder: List[int]) -> Optional[TreeNode]:
+    #     if len(preorder) == 0: return None
+    #     root = TreeNode()
+    #     root.val = preorder[0]
+    #     idx = inorder.index(root.val)
+    #     root.left = self.buildTree(preorder[1:1 + idx], inorder[:idx])
+    #     root.right = self.buildTree(preorder[1 + idx:], inorder[idx + 1:])
+    #     return root
+# 迭代法
+    def buildTree(self, preorder: List[int], inorder: List[int]) -> Optional[TreeNode]:
+        if not preorder: # empty
+            return None
+        root = TreeNode(preorder[0])
+        stack = [root]
+        inorder_idx = 0
+        for i in range(1, len(preorder)):
+            preorder_val = preorder[i]
+            node = stack[-1]
+            if node.val != inorder[inorder_idx]: # 当前preorder中的值为栈顶值的左节点
+                node.left = TreeNode(preorder_val)
+                stack.append(node.left)
+            else: # 当前的pretender的值为stack中某个节点的右节点
+                while stack and stack[-1].val == inorder[inorder_idx]:
+                    node = stack.pop()
+                    inorder_idx += 1
+                node.right = TreeNode(preorder_val)
+                stack.append(node.right)
+        return root
 
     def test(self):
         """test code

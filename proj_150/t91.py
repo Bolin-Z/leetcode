@@ -1,37 +1,35 @@
-# 题目：130.被围绕的区域
-# 标签：BFS DFS 并查集 数组 矩阵
+# 题目：133.克隆图
+# 标签：BFS DFS 图 哈希
 # 难度：中等
 # 日期：12.23
 
 from typing import *
 
 # 思路:
-# 从四个边界开始 找到不可捕获的区域 标记
-# 遍历一次 board 捕获可以捕获的区域
+# 用哈希表存储对应节点的映射 + BFS维护一个构造节点列表
 
+# Definition for a Node.
+class Node:
+    def __init__(self, val = 0, neighbors = None):
+        self.val = val
+        self.neighbors:List['Node'] = neighbors if neighbors is not None else []
+
+from collections import deque
 class Solution:
-    def solve(self, board: List[List[str]]) -> None:
-        row_num, col_num = len(board), len(board[0])
-        def dfs(i:int, j:int) -> None:
-            if i < 0 or i >= row_num or j < 0 or j >= col_num or board[i][j] != "O":
-                return
-            board[i][j] = "Y"
-            dfs(i-1,j)
-            dfs(i+1,j)
-            dfs(i,j-1)
-            dfs(i,j+1)
-        for j in range(col_num):
-            dfs(0, j)
-            dfs(row_num - 1, j)
-        for i in range(row_num):
-            dfs(i, 0)
-            dfs(i, col_num - 1)
-        for i in range(row_num):
-            for j in range(col_num):
-                if board[i][j] == "Y":
-                    board[i][j] = "O"
-                elif board[i][j] == "O":
-                    board[i][j] = "X"
+    def cloneGraph(self, node: Optional['Node']) -> Optional['Node']:
+        if node is None: return None
+        new_clone = Node(node.val)
+        origin_to_clone = {node:new_clone}
+        visit_que:Deque[List[Node]] = deque([[node, new_clone]])
+        while visit_que:
+            orign, clone = visit_que.popleft()
+            for n in orign.neighbors:
+                if n not in origin_to_clone:
+                    new_node = Node(n.val)
+                    origin_to_clone[n] = new_node
+                    visit_que.append([n, new_node])
+                clone.neighbors.append(origin_to_clone[n])
+        return new_clone
 
     def test(self):
         """test code

@@ -1,4 +1,4 @@
-# 题目：100.相同的树
+# 题目：226.翻转二叉树
 # 标签：
 # 难度：简单
 # 日期：12.20
@@ -16,15 +16,12 @@ class TreeNode:
         self.right = right
 
 class Solution:
-    def isSameTree(self, p: Optional[TreeNode], q: Optional[TreeNode]) -> bool:
-        return self.__check_tree(p, q)
-    
-    def __check_tree(self, p:Optional[TreeNode], q:Optional[TreeNode]) -> bool:
-        if p is None and q is None:
-            return True
-        if p and q:
-            return p.val == q.val and self.__check_tree(p.left, q.left) and self.__check_tree(p.right, q.right)
-        return False
+    def invertTree(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
+        if root is not None:
+            root.left, root.right = root.right, root.left
+            self.invertTree(root.left)
+            self.invertTree(root.right)
+        return root
 
     def test(self):
         """test code

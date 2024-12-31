@@ -1,5 +1,5 @@
-# 题目：104.二叉树的最大深度
-# 标签：数 DFS BFS 二叉树
+# 题目：100.相同的树
+# 标签：
 # 难度：简单
 # 日期：12.20
 
@@ -16,28 +16,15 @@ class TreeNode:
         self.right = right
 
 class Solution:
-    def maxDepth(self, root: Optional[TreeNode]) -> int:
-        return self.__get_height(root)
-
-    def __get_height(self, n:Optional[TreeNode]) -> int:
-        if n is None:
-            return 0
-        else:
-            return 1 + max(self.__get_height(n.left), self.__get_height(n.right))
-# 自顶向下方法
-class Solution:
-    def maxDepth(self, root: Optional[TreeNode]) -> int:
-        ans = 0
-        def dfs(node: Optional[TreeNode], depth:int) -> None:
-            if node is None:
-                return
-            depth += 1
-            nonlocal ans
-            ans = max(ans, depth)
-            dfs(node.left, depth)
-            dfs(node.right, depth)
-        dfs(root, 0)
-        return ans
+    def isSameTree(self, p: Optional[TreeNode], q: Optional[TreeNode]) -> bool:
+        return self.__check_tree(p, q)
+    
+    def __check_tree(self, p:Optional[TreeNode], q:Optional[TreeNode]) -> bool:
+        if p is None and q is None:
+            return True
+        if p and q:
+            return p.val == q.val and self.__check_tree(p.left, q.left) and self.__check_tree(p.right, q.right)
+        return False
 
     def test(self):
         """test code

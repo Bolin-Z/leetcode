@@ -1,5 +1,5 @@
-# 题目：909.蛇梯棋
-# 标签：BFS 数组 矩阵
+# 题目：433.最小基因变化
+# 标签：BFS 哈希 字符串
 # 难度：中等
 # 日期：12.24
 
@@ -7,88 +7,67 @@ from typing import *
 from collections import deque
 
 # 思路:
-# BFS 记录当前的跳数 队列里放每一跳可以到达的点 层序遍历
-# 如果格子为 -1 则更新 后面六个格子
-# 如果为蛇 则将目标节点加入队列
-# 开一个数组记录是否被visited(甚至可以记录跳数)
+# 对bank库建图 只相差一个字符的基因间存在一条无向边
+# 将 start 加入，连边，最短路(因为每条边cost相同，可以BFS)
+
+class Gene:
+    def __init__(self, gene:str) -> None:
+        self.gene = gene
+        self.neighbours = []
 
 class Solution:
-    def snakesAndLadders(self, board: List[List[int]]) -> int:
-        self._n = len(board)
-        self._board = board
-        target = self._n * self._n
-        visit_que = [1]
-        visited = set([1])
-        step = 0
-        while visit_que:
-            next_step_que = []
-            for last_step in visit_que:
-                if last_step == target:
-                    return step
-                for next_step in range(last_step + 1, min(last_step + 6, target) + 1):
-                    if next_step not in visited:
-                        snake_ladder = self.get(next_step)
-                        if snake_ladder != -1 and snake_ladder not in visited:
-                            visited.add(next_step)
-                            next_step_que.append(snake_ladder)
-                        elif snake_ladder == -1:
-                            visited.add(next_step)
-                            next_step_que.append(next_step)
-            step += 1
-            visit_que = next_step_que
+    def minMutation(self, startGene: str, endGene: str, bank: List[str]) -> int:
+        if startGene == endGene: return 0
+        gene_map = {g:Gene(g) for g in bank}
+        gene_list = list(gene_map.values())
+        for i in range(0, len(gene_list) - 1):
+            for j in range(i + 1, len(gene_list)):
+                self.connect(gene_list[i], gene_list[j])
+        if endGene not in gene_map:
+            return -1
+        target = gene_map[endGene]
+        start_gene = Gene(startGene)
+        for g in gene_list:
+            self.connect(start_gene, g)
+        vis = set([start_gene])
+        q = deque([(start_gene, 0)])
+        while q:
+            gene, step = q.popleft()
+            for n in gene.neighbours:
+                if n == target:
+                    return step + 1
+                if n not in vis:
+                    vis.add(n)
+                    q.append((n, step + 1))
         return -1
 
-    def get(self, idx:int) -> int:
-        row, col = divmod(idx - 1, self._n)
-        col = col if row % 2 == 0 else self._n - 1 - col
-        row = self._n - 1 - row
-        return self._board[row][col]
+    def connect(self, genx:Gene, geny:Gene) -> None:
+        diff = 0
+        for i in range(len(genx.gene)):
+            if genx.gene[i] != geny.gene[i]:
+                diff += 1
+                if diff > 1:
+                    return
+        genx.neighbours.append(geny)
+        geny.neighbours.append(genx)
 
     def test(self):
-        board = [
-            [-1,-1,-1,-1,-1,-1],
-            [-1,-1,-1,-1,-1,-1],
-            [-1,-1,-1,-1,-1,-1],
-            [-1,35,-1,-1,13,-1],
-            [-1,-1,-1,-1,-1,-1],
-            [-1,15,-1,-1,-1,-1]
+        """test code
+        """
+        test_cases = [
+            {
+                "Input ": [],
+                "Expect": [],
+                "Output": []
+            }
         ]
-        # board = [[1,1,-1],[1,1,1],[-1,1,1]]
-        board = [
-            [-1,-1,27,13,-1,25,-1],
-            [-1,-1,-1,-1,-1,-1,-1],
-            [44,-1,8,-1,-1,2,-1],
-            [-1,30,-1,-1,-1,-1,-1],
-            [3,-1,20,-1,46,6,-1],
-            [-1,-1,-1,-1,-1,-1,29],
-            [-1,29,21,33,-1,-1,-1]
-        ]
-        ans = self.snakesAndLadders(board)
+        for i, case in enumerate(test_cases):
+            case["Output"].append(case["Input "]) # 调用求解
+            print(f"Test {i + 1}")
+            for key, val in case.items():
+                print(f"\t\t{key}: {val}")
 
 # 官方题解
-# BFS 清晰写法
-class Solution:
-    def snakesAndLadders(self, board: List[List[int]]) -> int:
-        n = len(board)
-        def id2rc(idx:int) -> Tuple[int, int]:
-            r, c = divmod(idx - 1, n)
-            if r % 2 == 1:
-                c = n - 1 - c
-            return n - 1 - r, c
-        vis = set()
-        q = deque([(1, 0)])
-        while q:
-            idx, step = q.popleft()
-            for idx_nxt in range(idx + 1, min(idx + 6, n * n) + 1):
-                x_nxt, y_nxt = id2rc(idx_nxt)
-                if board[x_nxt][y_nxt] > 0:
-                    idx_nxt = board[x_nxt][y_nxt]
-                if idx_nxt == n * n:
-                    return step + 1
-                if idx_nxt not in vis:
-                    vis.add(idx_nxt)
-                    q.append((idx_nxt, step + 1))
-        return -1
 
 # 测试
 if __name__ == "__main__":
